@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WWVB Network Time Server</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<!-- If you really want to get fancy, add a CSS stylesheet -->
+	<!--<link rel="stylesheet" type="text/css" href="stylesheet.css">-->
+	
+	<!-- Change this to point to the appropriate location (it can be relative) -->
+	<!-- Right now it's using an external source for JQuery. -->
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	
+	<script>
+		function updateTime() {
+			$.getJSON('ExampleJSON.json', function(JSONResults) {
+				//http://www.w3schools.com/jsref/jsref_obj_date.asp
+				//http://www.w3schools.com/js/js_obj_date.asp
+				//(year, month, day, hours, minutes, seconds, milliseconds)
+				var zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute,
+				JSONResults.second, JSONResults.milliseconds);
+			
+				$('#zulu').text(zulu_time.toUTCString());
+				
+				$('#zone').text(zulu_time.toLocaleString());
+				
+				var client_time = new Date();
+				$('#client-time').text(client_time.toLocaleString());
+				
+				$('#sync').text(JSONResults.syncage+" minutes ago.");
+				
+				//https://en.wikipedia.org/wiki/WWVB
+				//integer value from 0-4
+				if (JSONResults.dst == 0) {
+					$('#alerts').text("Daylight savings time not in effect.");
+				} else if (JSONResults.dst == 1) {
+					$('#alerts').text("Daylight savings time ends today.");
+				} else if (JSONResults.dst == 2) {
+					$('#alerts').text("Daylight savings time begins today.");
+				} else {
+					$('#alerts').text("Daylight savings time in effect.");
+				}
+				
+				//"zone" in JSON, 0-3 value
+				var timezones = new Array("Eastern Time","Central Time","Mountain Time","Pacific Time");
+				//clear out previous value
+				$('#timezone-setting').text("");
+				for (var i=0; i < timezones.length; i++) {
+					if (JSONResults.zone == i) {
+						$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"' checked>"+timezones[i]+"</b><br>");
+					} else {
+						$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"'>"+timezones[i]+"</b><br>");
+					}
+				}
+				
+				if (JSONResults.ls == true) {
+					$('#alerts').text("Leap seconds at end of month enabled.");
+				}
+				
+				$('#netbios').text(JSONResults.netname);
+				
+				$('#ip').text(JSONResults.ip);
+			});
+		}
+
+		function postTimeZoneChange() {
+			//figure out which radio button is selected
+			var radio = document.getElementsByName('ZoneRadio')
+			for (var k=0; k < radio.length; k++) {
+				if (radio[k].checked) {
+					//send asynchronous AJAX call to POST in the background
+					var temp_timezone_strings = new Array("ET", "CT", "MT", "PT");
+					var datastring = 'timezone='+temp_timezone_strings[k];
+					//http://api.jquery.com/jQuery.ajax/
+					$.ajax({
+						type: "POST",
+						async: true,
+						cache: false,
+						url: "post.htm",
+						data: datastring,
+						success: function(data) {
+							$('#timezone-message').text("Timezone updated.");
+						},
+						error: function(data) {
+							$('#timezone-message').text("Uh oh... something exploded...");
+						}
+					});
+
+					//then, after the post is done, update the page data
+					updateTime();
+					
+					//we don't need to finish the loop at this point
+					break;
+				}
+			}
+		}
+	
+		$(document).ready(function() {
+			//run at document load
+			updateTime();
+		});
+		
+		setInterval(function() {
+			//update time data every minute
+			updateTime();
+		}, (60000));
+
+	</script>
+
+</head>
+
+
+<body>
+
+
+
+
+<center>
+	<h1><a href="https://en.wikipedia.org/wiki/WWVB">WWVB</a> Network Time Server</h1>
+</center>
+
+<p><b>Current Time:</b></p>
+
+<table>
+	<tr>
+		<td>Zulu (UTC/GMT):</td>
+		<td><div id="zulu"></div></td>
+	</tr>
+	<tr>
+		<td>Local Time:</td>
+		<td><div id="zone"></div></td>
+	</tr>
+	<tr>
+		<td>Client Time:</td>
+		<td><div id="client-time"></div></td>
+	</tr>
+</table>
+
+<p><b>Last Sync:</b></p>
+<div id="sync"></div>
+
+<p><b>Alerts:</b></p>
+<div id="alerts"></div>
+
+<p><b>Timzone Setting:</b></p>
+<form>
+	<div id="timezone-setting"></div>
+	<input id="updatebutton" type="button" value="Change Timezone" onclick="postTimeZoneChange();" />
+</form>
+<div id="timezone-message"></div>
+
+<p><b>Network Information:</b></p>
+<table>
+	<tr>
+		<td>NetBIOS Name:</td>
+		<td><div id="netbios"></div></td>
+	</tr>
+	<tr>
+		<td>IP Address:</td>
+		<td><div id="ip"></div></td>
+	</tr>
+</table>
+
+
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+{
+    "year": 2013,
+    "month": 3,
+    "day": 5,
+    "hour": 15,
+    "minute": 26,
+	"milliseconds": 29,
+    "second": 35,
+    "syncage": 26,
+    "dst": 2,
+    "ls": false,
+    "zone": 1,
+    "netname": "NTPServer",
+    "ip": "192.168.0.100"
+}
