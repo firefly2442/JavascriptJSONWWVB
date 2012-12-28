@@ -29,7 +29,7 @@
 				$('#sync').text(JSONResults.syncage+" minutes ago.");
 				
 				//https://en.wikipedia.org/wiki/WWVB
-				//integer value from 0-4
+				//integer value from 0-3
 				if (JSONResults.dst == 0) {
 					$('#alerts').text("Daylight savings time not in effect.");
 				} else if (JSONResults.dst == 1) {
