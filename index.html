@@ -9,20 +9,18 @@
 	<script type="text/javascript" src="jquery-1.8.3.min.js"></script>
 	
 	<script>
+		var intervalID;
+		var zulu_time = new Date();
+		var client_time = new Date();
+		
 		function updateTime() {
 			$.getJSON('ExampleJSON.json', function(JSONResults) {
 				//http://www.w3schools.com/jsref/jsref_obj_date.asp
 				//http://www.w3schools.com/js/js_obj_date.asp
 				//(year, month, day, hours, minutes, seconds, milliseconds)
-				var zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute,
-				JSONResults.second, JSONResults.milliseconds);
+				zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute, JSONResults.second, JSONResults.milliseconds);
 			
-				$('#zulu').text(zulu_time.toUTCString());
-				
-				$('#zone').text(zulu_time.toLocaleString());
-				
-				var client_time = new Date();
-				$('#client-time').text(client_time.toLocaleString());
+				setTimeText();
 				
 				$('#sync').text(JSONResults.syncage+" minutes ago.");
 				
@@ -58,6 +56,26 @@
 				
 				$('#ip').text(JSONResults.ip);
 			});
+		}
+		
+		function setTimeText() {
+			$('#zulu').text(zulu_time.toUTCString());
+			
+			$('#zone').text(zulu_time.toLocaleString());
+			
+			$('#client-time').text(client_time.toLocaleString());
+		}
+		
+		function setupRefreshTime() {
+			intervalID = setInterval(updateTimeWithTimer, 1000);
+		}
+		
+		function updateTimeWithTimer() {
+			//use Javascript to update each of the local Javascript objects by 1 second, then update the display
+			zulu_time = new Date(zulu_time.getTime() + 1000);
+			client_time = new Date(client_time.getTime() + 1000);
+			
+			setTimeText();
 		}
 
 		function postTimeZoneChange() {
@@ -107,7 +125,7 @@
 </head>
 
 
-<body>
+<body onload="setupRefreshTime();">
 
 
 
