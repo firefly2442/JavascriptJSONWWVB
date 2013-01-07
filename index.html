@@ -12,6 +12,10 @@
 		var intervalID;
 		var zulu_time = new Date();
 		var client_time = new Date();
+
+		//http://www.electrictoolbox.com/jquery-json-ajax-caching/
+		//Make sure JSON data (and any other data) is NOT cached
+		$.ajaxSetup({ cache:false });
 		
 		function updateTime() {
 			$.getJSON('ExampleJSON.json', function(JSONResults) {
