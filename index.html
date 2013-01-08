@@ -15,50 +15,56 @@
 
 		//http://www.electrictoolbox.com/jquery-json-ajax-caching/
 		//Make sure JSON data (and any other data) is NOT cached
-		$.ajaxSetup({ cache:false });
+		//This doesn't seem to work for some reason...
+		//$.ajaxSetup({ cache:false });
 		
 		function updateTime() {
-			$.getJSON('ExampleJSON.json', function(JSONResults) {
-				//http://www.w3schools.com/jsref/jsref_obj_date.asp
-				//http://www.w3schools.com/js/js_obj_date.asp
-				//(year, month, day, hours, minutes, seconds, milliseconds)
-				zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute, JSONResults.second, JSONResults.milliseconds);
-			
-				setTimeText();
+			$.ajax({
+				cache: false,
+				dataType: "json",
+				success: function(JSONResults) {
+					//http://www.w3schools.com/jsref/jsref_obj_date.asp
+					//http://www.w3schools.com/js/js_obj_date.asp
+					//(year, month, day, hours, minutes, seconds, milliseconds)
+					zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute, JSONResults.second, JSONResults.milliseconds);
 				
-				$('#sync').text(JSONResults.syncage+" minutes ago.");
-				
-				//https://en.wikipedia.org/wiki/WWVB
-				//integer value from 0-3
-				if (JSONResults.dst == 0) {
-					$('#alerts').text("Daylight savings time not in effect.");
-				} else if (JSONResults.dst == 1) {
-					$('#alerts').text("Daylight savings time ends today.");
-				} else if (JSONResults.dst == 2) {
-					$('#alerts').text("Daylight savings time begins today.");
-				} else {
-					$('#alerts').text("Daylight savings time in effect.");
-				}
-				
-				//"zone" in JSON, 0-3 value
-				var timezones = new Array("Eastern Time","Central Time","Mountain Time","Pacific Time");
-				//clear out previous value
-				$('#timezone-setting').text("");
-				for (var i=0; i < timezones.length; i++) {
-					if (JSONResults.zone == i) {
-						$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"' checked>"+timezones[i]+"</b><br>");
+					setTimeText();
+					
+					$('#sync').text(JSONResults.syncage+" minutes ago.");
+					
+					//https://en.wikipedia.org/wiki/WWVB
+					//integer value from 0-3
+					if (JSONResults.dst == 0) {
+						$('#alerts').text("Daylight savings time not in effect.");
+					} else if (JSONResults.dst == 1) {
+						$('#alerts').text("Daylight savings time ends today.");
+					} else if (JSONResults.dst == 2) {
+						$('#alerts').text("Daylight savings time begins today.");
 					} else {
-						$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"'>"+timezones[i]+"</b><br>");
+						$('#alerts').text("Daylight savings time in effect.");
 					}
-				}
-				
-				if (JSONResults.ls == true) {
-					$('#alerts').text("Leap seconds at end of month enabled.");
-				}
-				
-				$('#netbios').text(JSONResults.netname);
-				
-				$('#ip').text(JSONResults.ip);
+					
+					//"zone" in JSON, 0-3 value
+					var timezones = new Array("Eastern Time","Central Time","Mountain Time","Pacific Time");
+					//clear out previous value
+					$('#timezone-setting').text("");
+					for (var i=0; i < timezones.length; i++) {
+						if (JSONResults.zone == i) {
+							$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"' checked>"+timezones[i]+"</b><br>");
+						} else {
+							$('#timezone-setting').append("<b><input type='radio' name='ZoneRadio' value='"+i+"'>"+timezones[i]+"</b><br>");
+						}
+					}
+					
+					if (JSONResults.ls == true) {
+						$('#alerts').text("Leap seconds at end of month enabled.");
+					}
+					
+					$('#netbios').text(JSONResults.netname);
+					
+					$('#ip').text(JSONResults.ip);
+				},
+				url: 'ExampleJSON.json'
 			});
 		}
 		
