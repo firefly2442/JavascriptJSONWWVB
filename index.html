@@ -26,8 +26,8 @@
 					//http://www.w3schools.com/jsref/jsref_obj_date.asp
 					//http://www.w3schools.com/js/js_obj_date.asp
 					//(year, month, day, hours, minutes, seconds, milliseconds)
-					zulu_time = new Date(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute, JSONResults.second, JSONResults.milliseconds);
-				
+					zulu_time = new Date(Date.UTC(JSONResults.year, JSONResults.month, JSONResults.day, JSONResults.hour, JSONResults.minute, JSONResults.second, JSONResults.milliseconds));
+
 					setTimeText();
 					
 					$('#sync').text(JSONResults.syncage+" minutes ago.");
